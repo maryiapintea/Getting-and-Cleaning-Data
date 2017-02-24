@@ -1,0 +1,71 @@
+---
+title: "Getting_and_Cleaning_Data"
+output: html_document
+---
+
+
+## R Markdown
+
+
+```
+## install packages and library
+install.packages("reshape2")
+install.packages("dplyr")
+install.packages("plyr")
+library(reshape2)
+library(dplyr)
+library(plyr)
+
+## read files
+
+## Read Train data on X and Y
+TrainOnX<-read.table("C:\\Users\\Maria\\Documents\\X_train.txt")
+TrainOnY<-read.table("C:\\Users\\Maria\\Documents\\Y_train.txt")
+
+## Read subject file for Train data
+TrainSubject<-read.table("C:\\Users\\Maria\\Documents\\subject_train.txt")
+
+## Read Test data on X and Y
+TestOnX<-read.table("C:\\Users\\Maria\\Documents\\X_test.txt")
+TestOnY<-read.table("C:\\Users\\Maria\\Documents\\Y_test.txt")
+
+## Read subject file for test data
+TestSubject<-read.table("C:\\Users\\Maria\\Documents\\subject_test.txt")
+
+## Merge data: train, test and subject
+DataOnX<-rbind(TrainOnX, TestOnX)
+DataOnY<-rbind(TrainOnY, TestOnY)
+Subject<-rbind(TrainSubject, TestSubject)
+
+## Read feature table
+Features<-read.table("C:\\Users\\Maria\\Documents\\features.txt")
+Features
+
+##Mean values for Test and Train
+MeanValues<-grep("-(mean|std)\\(\\)", Features[, 2])
+DataOnX<-DataOnX[, MeanValues]
+
+##Change column names
+names(DataOnX)<-Features[MeanValues, 2]
+
+##Change column names in Y files
+Activity<-read.table("C:\\Users\\Maria\\Documents\\activity_labels.txt")
+Activity
+
+DataOnY[, 1]<-Activity[DataOnY[, 1], 2]
+names(DataOnY)<-"Activity"
+
+##Merge data from train and test
+names(Subject)<-"Subject"
+CombinedData<-cbind(DataOnX, DataOnY, Subject)
+CombinedData
+
+##Average of each value
+DataAverage<-ddply(CombinedData, .(Subject, Activity), function(x) colMeans(x[, 1:66]))
+DataAverage
+
+##Write data to file
+write.table(DataAverage, "AverageData.txt", row.name=FALSE)
+
+```
+
